@@ -71,7 +71,7 @@ dotnet publish windows/DailyMemo -c Release -r win-x64 --self-contained -p:Publi
 
 运行测试：`dotnet test windows/DailyMemo.Tests`
 
-**iPhone**：推送到 GitHub 后 Actions 自动编译，在对应运行记录的 Artifacts 里下载 `DailyMemo-unsigned-ipa`；或手动在 Actions 页面点「Run workflow」。有 Mac 的话：`brew install xcodegen && cd ios && xcodegen generate && open DailyMemo.xcodeproj`。
+**iPhone**：推送到 GitHub 后 Actions 自动编译（也可以在 Actions 页面点「Run workflow」），编译好的 IPA 发布在仓库 Releases 的「ios-latest」里：`gh release download ios-latest --repo zhw000/daily-memo`。有 Mac 的话：`brew install xcodegen && cd ios && xcodegen generate && open DailyMemo.xcodeproj`。
 
 ## 数据和隐私
 

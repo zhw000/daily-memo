@@ -3,9 +3,8 @@
 ## 获取未签名 IPA
 
 - **现成的**：`dist\ios\DailyMemo-unsigned.ipa`（最近一次编译的结果）。
-- **重新编译**：代码在私有仓库 <https://github.com/zhw000/daily-memo> ，每次推送 `ios/` 目录的改动都会在 GitHub Actions 的 macOS 机器上自动编译；也可以打开仓库的 **Actions → iOS → Run workflow** 手动编译。完成后在运行记录底部的 **Artifacts** 下载 `DailyMemo-unsigned-ipa`（zip 里就是 IPA）。
-
-同一次编译还会产出 `screenshots`（各界面的模拟器截图）和 `logs`（编译日志）。
+- **重新编译**：代码在私有仓库 <https://github.com/zhw000/daily-memo> ，每次推送 `ios/` 目录的改动都会在 GitHub Actions 的 macOS 机器上自动编译；也可以打开仓库的 **Actions → iOS → Run workflow** 手动编译。完成后到仓库的 **Releases → 今日事 iOS 最新构建（ios-latest）** 下载 `DailyMemo-unsigned.ipa`，同一页的 `screenshots.zip` 是各界面的模拟器截图。
+  命令行下载：`gh release download ios-latest --repo zhw000/daily-memo`
 
 ## 签名安装
 

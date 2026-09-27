@@ -16,6 +16,8 @@ jobs:
   build:
     runs-on: macos-15
     timeout-minutes: 60
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -45,25 +47,26 @@ jobs:
         working-directory: ios
         run: bash ci/build-ipa.sh
 
-      - name: 上传 IPA
-        uses: actions/upload-artifact@v4
-        with:
-          name: DailyMemo-unsigned-ipa
-          path: ios/build/DailyMemo-unsigned.ipa
-          if-no-files-found: error
+      # IPA 和截图发布到本仓库的 Release「ios-latest」（每次覆盖）。
+      # Release 附件不占用 Actions 的 Artifact 存储额度。
+      - name: 发布到 Release（ios-latest）
+        working-directory: ios/build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          (cd screenshots && zip -qr ../screenshots.zip .)
+          gh release delete ios-latest --yes --cleanup-tag || true
+          gh release create ios-latest DailyMemo-unsigned.ipa screenshots.zip \
+            --target "${{ github.sha }}" --prerelease \
+            --title "今日事 iOS 最新构建" \
+            --notes "提交 ${{ github.sha }} 编译的未签名 IPA。下载 DailyMemo-unsigned.ipa 后用 Sideloadly / AltStore / 自己的证书签名安装。screenshots.zip 是模拟器截图。"
 
-      - name: 上传截图
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: screenshots
-          path: ios/build/screenshots
-          if-no-files-found: ignore
-
-      - name: 上传日志
-        if: always()
+      - name: 上传日志（失败时）
+        if: failure()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: logs
           path: ios/build/logs
+          retention-days: 3
           if-no-files-found: ignore
