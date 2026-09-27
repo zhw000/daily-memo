@@ -15,6 +15,9 @@ public sealed class EditorViewModel : ObservableObject
     private readonly AppHost _host;
     private readonly TimeSpan _origDuration;
     private readonly int _origSpanDays = 1;
+    private readonly DateTime? _initialDate;
+    private readonly bool _initialHasTime;
+    private readonly string _initialStart;
     private bool _isTask;
     private string _title = "";
     private string _notes = "";
@@ -62,6 +65,9 @@ public sealed class EditorViewModel : ObservableObject
             _endTime = start.AddHours(1).ToString("HH:mm");
         }
 
+        _initialDate = _date;
+        _initialHasTime = _hasTime;
+        _initialStart = _startTime;
         SaveCommand = new AsyncCommand(SaveAsync, () => !IsReadOnly);
         DeleteCommand = new AsyncCommand(DeleteAsync, () => CanDelete);
         CancelCommand = new RelayCommand(() => CloseRequested?.Invoke(false));
@@ -243,6 +249,9 @@ public sealed class EditorViewModel : ObservableObject
     private async Task SaveAsync()
     {
         Error = null;
+        // 标题里写了「明天下午3点」、而日期时间没手动改过：直接按识别结果保存
+        if (IsNew && HasParseHint && Date == _initialDate && HasTime == _initialHasTime && StartTime == _initialStart)
+            ApplyParsedTitle();
         var title = Title.Trim();
         if (title.Length == 0)
         {

@@ -40,6 +40,8 @@ if ! xcodebuild test -project DailyMemo.xcodeproj -scheme DailyMemo -destination
   exit 1
 fi
 grep -E "Executed [0-9]+ test" build/logs/test.log | tail -1 || true
+echo "== 编译警告（去重）=="
+grep -E "\.swift:[0-9]+:[0-9]+: warning:" build/logs/test.log | sed -E 's#^.*/ios/##' | sort -u | head -80 || true
 
 echo "== 截图 =="
 APP=build/sim/Build/Products/Debug-iphonesimulator/DailyMemo.app

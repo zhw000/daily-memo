@@ -125,8 +125,10 @@ public sealed class AgendaService
         var key = preferred ?? _settings.Current.DefaultTaskTarget;
         var lists = TaskContainers;
         if (lists.Any(c => c.Key == key)) return key;
-        var google = lists.FirstOrDefault(c => c.Source == ItemSource.Google);
-        return google?.Key ?? ContainerKeys.Local;
+        // 没有指定时：优先和 iPhone「提醒事项」配对的 Google 清单（手机上会变成带闹钟的提醒），其次是第一个 Google 清单
+        var google = lists.Where(c => c.Source == ItemSource.Google).ToList();
+        var paired = google.FirstOrDefault(c => c.Name is "提醒事项" or "Reminders" or "提醒");
+        return (paired ?? google.FirstOrDefault())?.Key ?? ContainerKeys.Local;
     }
 
     public string? ResolveEventTarget(string? preferred = null)

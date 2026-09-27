@@ -7,9 +7,11 @@ struct EditorView: View {
     @State private var saving = false
     @State private var errorText: String?
     @State private var confirmDelete = false
+    private let initial: EditorDraft
 
     init(draft: EditorDraft) {
         _draft = State(initialValue: draft)
+        initial = draft
     }
 
     private var targets: [SourceContainer] {
@@ -70,7 +72,7 @@ struct EditorView: View {
 
                 Section {
                     if draft.kind == .task {
-                        Toggle("日期", isOn: $draft.hasDate.animation())
+                        Toggle("截止日期", isOn: $draft.hasDate.animation())
                         if draft.hasDate {
                             DatePicker("日期", selection: $draft.date, displayedComponents: .date)
                             Toggle("具体时间", isOn: $draft.hasTime.animation())
@@ -188,6 +190,11 @@ struct EditorView: View {
     }
 
     private func save() async {
+        // 标题里写了「明天下午3点」、而日期时间没手动改过：直接按识别结果保存
+        if let s = parseSuggestion, draft.hasDate == initial.hasDate, draft.hasTime == initial.hasTime,
+           DateText.calendar.isDate(draft.date, inSameDayAs: initial.date) {
+            apply(s)
+        }
         saving = true
         errorText = nil
         do {

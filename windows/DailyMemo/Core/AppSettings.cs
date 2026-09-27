@@ -24,7 +24,8 @@ public sealed class AppSettings
     /// <summary>容器键 → 是否显示；没有记录时使用容器自己的默认值</summary>
     public Dictionary<string, bool> Visibility { get; set; } = new();
 
-    public string DefaultTaskTarget { get; set; } = ContainerKeys.Local;
+    /// <summary>留空表示自动：登录 Google 后存到 Google（优先和 iPhone 提醒事项配对的清单），否则存本机</summary>
+    public string DefaultTaskTarget { get; set; } = "";
     public string DefaultEventTarget { get; set; } = "";
 
     // 桌面小组件

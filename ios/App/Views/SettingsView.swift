@@ -273,7 +273,7 @@ struct PermissionRow: View {
         HStack {
             Label(title, systemImage: icon)
             Spacer()
-            Text(status)
+            Text(granted ? "已允许" : status)
                 .foregroundStyle(granted ? Color.secondary : Color.overdue)
             Image(systemName: granted ? "checkmark.circle.fill" : "exclamationmark.circle.fill")
                 .foregroundStyle(granted ? Color.done : Color.overdue)

@@ -16,6 +16,9 @@ if ! xcodebuild -project DailyMemo.xcodeproj -scheme DailyMemo -configuration Re
   exit 1
 fi
 
+echo "== 编译警告（去重）=="
+grep -E "\.swift:[0-9]+:[0-9]+: warning:" build/logs/device.log | sed -E 's#^.*/ios/##' | sort -u | head -80 || true
+
 APP=build/device/Build/Products/Release-iphoneos/DailyMemo.app
 test -d "$APP/PlugIns/DailyMemoWidget.appex" || { echo "小组件扩展没有打进 App"; exit 1; }
 

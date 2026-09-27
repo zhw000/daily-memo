@@ -106,7 +106,20 @@ struct SourceContainer: Codable, Identifiable, Hashable {
         }
     }
 
-    var displayName: String { "\(name)（\(sourceLabel)）" }
+    /// 选择保存位置时显示的名字，例如「工作（Google 日历）」；默认的「提醒事项」列表直接叫「iPhone 提醒事项」
+    var displayName: String {
+        let long: String
+        switch source {
+        case .ekEvent: long = "iPhone 日历"
+        case .ekReminder: long = "iPhone 提醒事项"
+        case .googleEvent: long = "Google 日历"
+        case .googleTask: long = "Google Tasks"
+        }
+        if name == sourceLabel || name == long || (source == .ekReminder && ["提醒事项", "提醒", "Reminders"].contains(name)) {
+            return long
+        }
+        return "\(name)（\(long)）"
+    }
 }
 
 /// 写入共享目录给小组件用的数据

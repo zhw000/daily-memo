@@ -118,12 +118,9 @@ public sealed class SettingsViewModel : PageViewModel
             await _host.GoogleAuth.SignInAsync(default);
             _host.ShowMainWindow("settings");
             await _host.Agenda.RefreshAsync();
-            // 登录后新建的待办默认存到 Google，这样手机上也能看到
+            // 登录后新建的待办默认存到 Google（自动选择），这样手机上也能看到
             if (S.DefaultTaskTarget == ContainerKeys.Local)
-            {
-                var first = _host.Agenda.TaskContainers.FirstOrDefault(c => c.Source == ItemSource.Google);
-                if (first != null) Update(s => s.DefaultTaskTarget = first.Key, null, nameof(SelectedTaskTarget));
-            }
+                Update(s => s.DefaultTaskTarget = "", null, nameof(SelectedTaskTarget));
             if (_host.Agenda.LocalOpenCount > 0 &&
                 await _host.ConfirmAsync($"本机有 {_host.Agenda.LocalOpenCount} 项待办还没同步，要搬到 Google Tasks 吗？\n搬过去之后手机上也能看到。", "搬到 Google", null))
                 await MigrateLocalAsync();
