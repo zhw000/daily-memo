@@ -1,0 +1,292 @@
+<UserControl x:Class="DailyMemo.Views.SettingsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+             xmlns:vm="clr-namespace:DailyMemo.ViewModels">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="36,26,36,30">
+        <StackPanel MaxWidth="860" HorizontalAlignment="Stretch">
+            <TextBlock Text="设置" FontSize="30" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+            <TextBlock Text="连接账号后，电脑和 iPhone 会显示同一份日历和待办" Margin="0,6,0,18" FontSize="14"
+                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+
+            <!-- 同步说明 -->
+            <Border Style="{StaticResource Card}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <ui:SymbolIcon Symbol="ArrowSync24" FontSize="26" Foreground="{DynamicResource BrandBrush}" VerticalAlignment="Top" Margin="0,2,16,0" />
+                    <StackPanel Grid.Column="1">
+                        <TextBlock Text="电脑和手机怎么同步" Style="{StaticResource CardTitle}" />
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,2,0,8"
+                                   Text="两边都登录同一个 Google 账号：Google 日历和 Google Tasks 是共同的数据。iPhone 版会把「提醒事项」双向同步到 Google Tasks，所以电脑上也能看到、也能打勾。iPhone「日历」里的 iCloud 日历可以在下面直接连接。" />
+                        <TextBlock Text="{Binding SyncDetails}" FontSize="12" TextWrapping="Wrap" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                    </StackPanel>
+                    <ui:Button Grid.Column="2" Content="立即同步" Icon="{ui:SymbolIcon ArrowSync20}" Command="{Binding RefreshCommand}" VerticalAlignment="Top" Margin="12,0,0,0" />
+                </Grid>
+            </Border>
+
+            <!-- Google -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="Google 账号（日历 + Tasks）" Style="{StaticResource CardTitle}" />
+                            <TextBlock Text="{Binding GoogleStatus}" Style="{StaticResource Caption}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Top">
+                            <ui:Button Content="登录 Google" Appearance="Primary" Icon="{ui:SymbolIcon PersonCircle24}" Command="{Binding SignInCommand}"
+                                       Visibility="{Binding IsGoogleSignedOut, Converter={StaticResource BoolToVis}}" />
+                            <ui:Button Content="退出登录" Command="{Binding SignOutCommand}"
+                                       Visibility="{Binding IsGoogleSignedIn, Converter={StaticResource BoolToVis}}" />
+                        </StackPanel>
+                    </Grid>
+
+                    <StackPanel Visibility="{Binding IsGoogleSignedOut, Converter={StaticResource BoolToVis}}" Margin="0,12,0,0">
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,10"
+                                   Text="第一次使用需要在 Google Cloud 创建一个「桌面应用」类型的 OAuth 客户端（免费，约 5 分钟，步骤见下方）。创建后下载 JSON 导入，或者把 ID 和密钥粘贴进来。" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBox Text="{Binding GoogleClientId, UpdateSourceTrigger=LostFocus}" PlaceholderText="客户端 ID（xxx.apps.googleusercontent.com）" />
+                            <ui:TextBox Grid.Column="2" Text="{Binding GoogleClientSecret, UpdateSourceTrigger=LostFocus}" PlaceholderText="客户端密钥（GOCSPX-…）" />
+                        </Grid>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <ui:Button Content="导入 JSON 文件…" Icon="{ui:SymbolIcon FolderOpen20}" Command="{Binding ImportClientJsonCommand}" Margin="0,0,8,0" />
+                            <ui:Button Content="打开 Google Cloud 控制台" Icon="{ui:SymbolIcon Globe20}" Command="{Binding OpenGoogleConsoleCommand}" />
+                        </StackPanel>
+                        <Expander Header="怎么获得客户端 ID？（点开看步骤）" Margin="0,12,0,0">
+                            <TextBlock Style="{StaticResource Caption}" Margin="4,6,4,4" LineHeight="21">
+                                <Run Text="1. 打开 console.cloud.google.com，新建一个项目（名字随意，例如「今日事」）。" /><LineBreak />
+                                <Run Text="2. 「API 和服务 → 库」里搜索并启用 Google Calendar API 和 Google Tasks API。" /><LineBreak />
+                                <Run Text="3. 「OAuth 同意屏幕」：用户类型选「外部」，填应用名称和你的邮箱；在「目标对象」里点「发布应用」（否则登录 7 天后会失效）。" /><LineBreak />
+                                <Run Text="4. 「凭据 → 创建凭据 → OAuth 客户端 ID」，应用类型选「桌面应用」，创建后点「下载 JSON」。" /><LineBreak />
+                                <Run Text="5. 回到这里点「导入 JSON 文件…」，再点「登录 Google」。浏览器提示「Google 尚未验证此应用」时，点「高级 → 转到今日事」即可（这是你自己的应用）。" /><LineBreak />
+                                <Run Text="6. iPhone 版还需要一个「iOS」类型的客户端 ID，详见项目里的《Google 配置教程》。" />
+                            </TextBlock>
+                        </Expander>
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding IsGoogleSignedIn, Converter={StaticResource BoolToVis}}" Margin="0,8,0,0">
+                        <Grid Margin="0,8,0,0">
+                            <TextBlock Text="显示 Google 日历" Style="{StaticResource FieldLabel}" />
+                            <ui:ToggleSwitch IsChecked="{Binding GoogleCalendarEnabled}" HorizontalAlignment="Right" />
+                        </Grid>
+                        <Grid Margin="0,8,0,0">
+                            <TextBlock Text="显示 Google Tasks 待办" Style="{StaticResource FieldLabel}" />
+                            <ui:ToggleSwitch IsChecked="{Binding GoogleTasksEnabled}" HorizontalAlignment="Right" />
+                        </Grid>
+                        <Grid Margin="0,10,0,0" Visibility="{Binding LocalTasksHint, Converter={StaticResource TextToVis}}">
+                            <TextBlock Text="{Binding LocalTasksHint}" Style="{StaticResource Caption}" VerticalAlignment="Center" Margin="0,0,160,0" />
+                            <ui:Button Content="搬到 Google Tasks" HorizontalAlignment="Right" Command="{Binding MigrateLocalCommand}" />
+                        </Grid>
+                    </StackPanel>
+
+                    <Border Height="1" Background="{DynamicResource DividerStrokeColorDefaultBrush}" Margin="0,14,0,10" />
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="260" />
+                        </Grid.ColumnDefinitions>
+                        <StackPanel>
+                            <TextBlock Text="网络代理（可选）" Style="{StaticResource FieldLabel}" />
+                            <TextBlock Text="在国内访问 Google 需要代理。系统代理已开启时留空即可；否则填写代理软件的 HTTP 端口。" Style="{StaticResource Caption}" Margin="0,2,16,0" />
+                        </StackPanel>
+                        <ui:TextBox Grid.Column="1" Text="{Binding ProxyAddress, UpdateSourceTrigger=LostFocus}" PlaceholderText="例如 127.0.0.1:7890" VerticalAlignment="Center" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- iCloud -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="iCloud 日历（iPhone 自带「日历」）" Style="{StaticResource CardTitle}" />
+                            <TextBlock Text="{Binding ICloudStatus}" Style="{StaticResource Caption}" />
+                        </StackPanel>
+                        <ui:Button Content="断开" HorizontalAlignment="Right" VerticalAlignment="Top" Command="{Binding DisconnectICloudCommand}"
+                                   Visibility="{Binding IsICloudConnected, Converter={StaticResource BoolToVis}}" />
+                    </Grid>
+                    <StackPanel Visibility="{Binding IsICloudDisconnected, Converter={StaticResource BoolToVis}}" Margin="0,10,0,0">
+                        <TextBlock Style="{StaticResource Caption}" Margin="0,0,0,10"
+                                   Text="直接读取 iCloud 上的日历（可以在这里新建日程）。需要在 Apple ID 网站生成一个「App 专用密码」，不是你的 Apple ID 密码。国区 Apple ID 会自动连接云上贵州服务器。提醒事项请用 iPhone 版同步到 Google Tasks。" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="12" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <ui:TextBox Text="{Binding ICloudAppleId, UpdateSourceTrigger=LostFocus}" PlaceholderText="Apple ID（邮箱或手机号）" />
+                            <ui:PasswordBox x:Name="ICloudPwd" Grid.Column="2" PlaceholderText="App 专用密码（xxxx-xxxx-xxxx-xxxx）" />
+                            <ui:Button Grid.Column="3" Content="连接" Appearance="Primary" Margin="12,0,0,0" Command="{Binding ConnectICloudCommand}"
+                                       CommandParameter="{Binding ElementName=ICloudPwd}" />
+                        </Grid>
+                        <Button Style="{StaticResource LinkButton}" Command="{Binding OpenAppleIdCommand}" Margin="0,10,0,0" HorizontalAlignment="Left">
+                            <TextBlock Text="去 Apple ID 网站生成 App 专用密码 →" FontSize="12" />
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 显示内容 -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="显示哪些日历和清单" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="取消勾选的日历不会出现在「今天」和小组件里" Style="{StaticResource Caption}" Margin="0,0,0,8" />
+                    <ItemsControl ItemsSource="{Binding Containers}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="2" />
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate DataType="{x:Type vm:ContainerToggleViewModel}">
+                                <CheckBox IsChecked="{Binding IsVisible}" Margin="0,4">
+                                    <StackPanel Orientation="Horizontal">
+                                        <Ellipse Width="10" Height="10" Fill="{Binding ColorBrush}" VerticalAlignment="Center" Margin="0,0,8,0" />
+                                        <TextBlock Text="{Binding Name}" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="220" />
+                                        <TextBlock Text="{Binding SourceLabel}" Margin="8,0,0,0" FontSize="11" VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                                    </StackPanel>
+                                </CheckBox>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                    <Grid Margin="0,12,0,0">
+                        <TextBlock Text="「今天」页显示没有日期的待办" Style="{StaticResource FieldLabel}" />
+                        <ui:ToggleSwitch IsChecked="{Binding ShowUndatedInToday}" HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- 默认位置 -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="新建时默认保存到" Style="{StaticResource CardTitle}" />
+                    <TextBlock Text="想让手机也看到，请选 Google 的清单和日历" Style="{StaticResource Caption}" Margin="0,0,0,8" />
+                    <Grid Margin="0,6,0,0">
+                        <TextBlock Text="待办" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding TaskTargets}" SelectedItem="{Binding SelectedTaskTarget}" DisplayMemberPath="Name"
+                                  Width="320" HorizontalAlignment="Right" />
+                    </Grid>
+                    <Grid Margin="0,8,0,0">
+                        <TextBlock Text="日程" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding EventTargets}" SelectedItem="{Binding SelectedEventTarget}" DisplayMemberPath="Name"
+                                  Width="320" HorizontalAlignment="Right" />
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- 小组件 -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <Grid>
+                        <StackPanel>
+                            <TextBlock Text="桌面小组件" Style="{StaticResource CardTitle}" />
+                            <TextBlock Text="在桌面上一直显示今天的安排，可以直接打勾和添加" Style="{StaticResource Caption}" />
+                        </StackPanel>
+                        <ui:ToggleSwitch IsChecked="{Binding WidgetVisible}" HorizontalAlignment="Right" VerticalAlignment="Top" />
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <TextBlock Text="显示方式" Style="{StaticResource FieldLabel}" />
+                        <ComboBox SelectedIndex="{Binding WidgetModeIndex}" Width="260" HorizontalAlignment="Right">
+                            <ComboBoxItem Content="贴在桌面（被其他窗口遮住）" />
+                            <ComboBoxItem Content="总在最前" />
+                            <ComboBoxItem Content="普通窗口" />
+                        </ComboBox>
+                    </Grid>
+                    <Grid Margin="0,10,0,0">
+                        <TextBlock Text="背景不透明度" Style="{StaticResource FieldLabel}" />
+                        <Slider Minimum="0.4" Maximum="1" Value="{Binding WidgetOpacity}" Width="260" HorizontalAlignment="Right"
+                                SmallChange="0.05" LargeChange="0.1" />
+                    </Grid>
+                    <Grid Margin="0,10,0,0">
+                        <TextBlock Text="显示今天已完成的" Style="{StaticResource FieldLabel}" />
+                        <ui:ToggleSwitch IsChecked="{Binding WidgetShowCompleted}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <Grid Margin="0,10,0,0">
+                        <TextBlock Text="显示没有日期的待办" Style="{StaticResource FieldLabel}" />
+                        <ui:ToggleSwitch IsChecked="{Binding WidgetShowUndated}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <Grid Margin="0,10,0,0">
+                        <TextBlock Text="锁定位置和大小" Style="{StaticResource FieldLabel}" />
+                        <ui:ToggleSwitch IsChecked="{Binding WidgetLocked}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <ui:Button Content="重置位置" Icon="{ui:SymbolIcon ArrowUpRight20}" Command="{Binding ResetWidgetCommand}" Margin="0,12,0,0" />
+                </StackPanel>
+            </Border>
+
+            <!-- 提醒 -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="提醒" Style="{StaticResource CardTitle}" />
+                    <Grid Margin="0,8,0,0">
+                        <StackPanel>
+                            <TextBlock Text="每日早报" Style="{StaticResource FieldLabel}" />
+                            <TextBlock Text="每天到点（或当天第一次开机时）推送今天要做的事" Style="{StaticResource Caption}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <ComboBox IsEditable="True" Text="{Binding DailySummaryTime, UpdateSourceTrigger=LostFocus}" ItemsSource="{Binding SummaryTimeOptions}"
+                                      Width="110" Margin="0,0,12,0" />
+                            <ui:ToggleSwitch IsChecked="{Binding DailySummaryEnabled}" />
+                        </StackPanel>
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="开始前提醒" Style="{StaticResource FieldLabel}" />
+                            <TextBlock Text="日程和带时间的待办开始前弹出通知" Style="{StaticResource Caption}" />
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                            <ComboBox ItemsSource="{Binding ReminderOptions}" SelectedItem="{Binding EventReminderMinutes}" ItemStringFormat="提前 {0} 分钟"
+                                      Width="140" Margin="0,0,12,0" />
+                            <ui:ToggleSwitch IsChecked="{Binding EventReminderEnabled}" />
+                        </StackPanel>
+                    </Grid>
+                    <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <ui:Button Content="发送测试通知" Icon="{ui:SymbolIcon AlertOn24}" Command="{Binding TestNotificationCommand}" Margin="0,0,8,0" />
+                        <ui:Button Content="现在推送今日安排" Command="{Binding ShowSummaryNowCommand}" />
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- 常规 -->
+            <Border Style="{StaticResource Card}">
+                <StackPanel>
+                    <TextBlock Text="常规" Style="{StaticResource CardTitle}" />
+                    <Grid Margin="0,8,0,0">
+                        <TextBlock Text="开机自动启动" Style="{StaticResource FieldLabel}" />
+                        <ui:ToggleSwitch IsChecked="{Binding LaunchAtStartup}" HorizontalAlignment="Right" />
+                    </Grid>
+                    <Grid Margin="0,10,0,0">
+                        <TextBlock Text="外观" Style="{StaticResource FieldLabel}" />
+                        <ComboBox SelectedIndex="{Binding ThemeIndex}" Width="200" HorizontalAlignment="Right">
+                            <ComboBoxItem Content="跟随系统" />
+                            <ComboBoxItem Content="浅色" />
+                            <ComboBoxItem Content="深色" />
+                        </ComboBox>
+                    </Grid>
+                    <Grid Margin="0,10,0,0">
+                        <TextBlock Text="自动同步间隔" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding RefreshOptions}" SelectedItem="{Binding RefreshMinutes}" ItemStringFormat="每 {0} 分钟"
+                                  Width="200" HorizontalAlignment="Right" />
+                    </Grid>
+                    <Grid Margin="0,12,0,0">
+                        <StackPanel>
+                            <TextBlock Text="数据文件夹" Style="{StaticResource FieldLabel}" />
+                            <TextBlock Text="{Binding DataFolder}" Style="{StaticResource Caption}" />
+                        </StackPanel>
+                        <ui:Button Content="打开" Icon="{ui:SymbolIcon Folder20}" Command="{Binding OpenDataFolderCommand}" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                    </Grid>
+                    <TextBlock Text="{Binding Version}" Style="{StaticResource Caption}" Margin="0,14,0,0" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

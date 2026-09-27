@@ -1,0 +1,134 @@
+# XcodeGen 项目描述：在 macOS 上执行 `xcodegen generate` 生成 DailyMemo.xcodeproj
+# 想换 Bundle ID / App Group，只改下面 3 处 com.dailymemo.app 和 group.com.dailymemo.app 即可
+name: DailyMemo
+options:
+  bundleIdPrefix: com.dailymemo
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    IPHONEOS_DEPLOYMENT_TARGET: "17.0"
+    TARGETED_DEVICE_FAMILY: "1,2"
+    CODE_SIGN_STYLE: Automatic
+    DEVELOPMENT_TEAM: ""
+    ENABLE_USER_SCRIPT_SANDBOXING: NO
+    LOCALIZATION_PREFERS_STRING_CATALOGS: NO
+    DEVELOPMENT_LANGUAGE: zh-Hans
+
+targets:
+  DailyMemo:
+    type: application
+    platform: iOS
+    sources:
+      - path: App
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dailymemo.app
+        PRODUCT_NAME: DailyMemo
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: App/DailyMemo.entitlements
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: 今日事
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSApplicationCategoryType: public.app-category.productivity
+        LSRequiresIPhoneOS: true
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+          - UIInterfaceOrientationPortraitUpsideDown
+          - UIInterfaceOrientationLandscapeLeft
+          - UIInterfaceOrientationLandscapeRight
+        NSCalendarsFullAccessUsageDescription: 今日事需要读取和修改日历，把今天的日程显示在 App 和小组件里。
+        NSCalendarsUsageDescription: 今日事需要读取和修改日历，把今天的日程显示在 App 和小组件里。
+        NSRemindersFullAccessUsageDescription: 今日事需要读取和修改提醒事项，把待办显示出来，并和电脑同步。
+        NSRemindersUsageDescription: 今日事需要读取和修改提醒事项，把待办显示出来，并和电脑同步。
+        UIBackgroundModes:
+          - fetch
+        BGTaskSchedulerPermittedIdentifiers:
+          - com.dailymemo.app.refresh
+        CFBundleURLTypes:
+          - CFBundleURLName: com.dailymemo.app
+            CFBundleURLSchemes:
+              - dailymemo
+        ITSAppUsesNonExemptEncryption: false
+        DMAppGroup: group.com.dailymemo.app
+    entitlements:
+      path: App/DailyMemo.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.dailymemo.app
+    dependencies:
+      - target: DailyMemoWidget
+
+  DailyMemoWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: Widget
+      - path: Shared
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.dailymemo.app.widget
+        PRODUCT_NAME: DailyMemoWidget
+        CODE_SIGN_ENTITLEMENTS: Widget/DailyMemoWidget.entitlements
+        SKIP_INSTALL: YES
+        APPLICATION_EXTENSION_API_ONLY: YES
+    info:
+      path: Widget/Info.plist
+      properties:
+        CFBundleDisplayName: 今日事
+        CFBundleDevelopmentRegion: zh-Hans
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        DMAppGroup: group.com.dailymemo.app
+    entitlements:
+      path: Widget/DailyMemoWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.dailymemo.app
+
+  DailyMemoTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: Tests
+    dependencies:
+      - target: DailyMemo
+    settings:
+      base:
+        GENERATE_INFOPLIST_FILE: YES
+        PRODUCT_BUNDLE_IDENTIFIER: com.dailymemo.app.tests
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/DailyMemo.app/DailyMemo
+        BUNDLE_LOADER: $(TEST_HOST)
+
+schemes:
+  DailyMemo:
+    build:
+      targets:
+        DailyMemo: all
+        DailyMemoTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - DailyMemoTests
+    archive:
+      config: Release

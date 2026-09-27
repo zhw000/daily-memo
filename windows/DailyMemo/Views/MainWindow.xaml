@@ -1,0 +1,173 @@
+<ui:FluentWindow x:Class="DailyMemo.Views.MainWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 xmlns:v="clr-namespace:DailyMemo.Views"
+                 xmlns:vm="clr-namespace:DailyMemo.ViewModels"
+                 Title="今日事" Width="1080" Height="740" MinWidth="800" MinHeight="560"
+                 ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica" WindowCornerPreference="Round"
+                 WindowStartupLocation="CenterScreen" FontFamily="{StaticResource UiFont}"
+                 Icon="pack://application:,,,/Assets/app.ico">
+    <ui:FluentWindow.Resources>
+        <DataTemplate DataType="{x:Type vm:TodayViewModel}">
+            <v:TodayView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:UpcomingViewModel}">
+            <v:UpcomingView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:ListsViewModel}">
+            <v:ListsView />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vm:SettingsViewModel}">
+            <v:SettingsView />
+        </DataTemplate>
+
+        <!-- 侧边栏导航项 -->
+        <Style x:Key="NavItem" TargetType="ListBoxItem">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <Grid Margin="0,2">
+                            <Border x:Name="Bg" Background="Transparent" CornerRadius="6" Height="38">
+                                <ContentPresenter VerticalAlignment="Center" Margin="14,0,10,0" />
+                            </Border>
+                            <Border x:Name="Pill" Width="3" Height="16" CornerRadius="1.5" Background="{DynamicResource BrandBrush}"
+                                    HorizontalAlignment="Left" Visibility="Collapsed" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                <Setter TargetName="Pill" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="NavButton" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid Margin="0,2">
+                            <Border x:Name="Bg" Background="Transparent" CornerRadius="6" MinHeight="38">
+                                <ContentPresenter VerticalAlignment="Center" Margin="14,0,10,0" />
+                            </Border>
+                            <Border x:Name="Pill" Width="3" Height="16" CornerRadius="1.5" Background="{DynamicResource BrandBrush}"
+                                    HorizontalAlignment="Left" Visibility="Collapsed" />
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                            </Trigger>
+                            <Trigger Property="Tag" Value="selected">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource SubtleFillColorSecondaryBrush}" />
+                                <Setter TargetName="Pill" Property="Visibility" Value="Visible" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </ui:FluentWindow.Resources>
+
+    <Grid x:Name="Root">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="236" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- 侧边栏 -->
+            <DockPanel Margin="10,0,10,12">
+                <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Margin="14,6,0,18">
+                    <Image Source="pack://application:,,,/Assets/app-256.png" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality" />
+                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="今日事" FontSize="16" FontWeight="SemiBold" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                        <TextBlock Text="每天要做的事，一眼看清" FontSize="11" Foreground="{DynamicResource TextFillColorTertiaryBrush}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Bottom">
+                    <Border Height="1" Background="{DynamicResource DividerStrokeColorDefaultBrush}" Margin="6,6,6,6" />
+                    <Button x:Name="SettingsNav" Style="{StaticResource NavButton}" Command="{Binding OpenSettingsCommand}">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Settings24" FontSize="18" />
+                            <TextBlock Text="设置" Margin="12,0,0,0" FontSize="14" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource NavButton}" Command="{Binding ToggleWidgetCommand}" ToolTip="显示或隐藏桌面小组件">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon Symbol="Board24" FontSize="18" />
+                            <TextBlock Text="桌面小组件" Margin="12,0,0,0" FontSize="14" VerticalAlignment="Center" />
+                        </StackPanel>
+                    </Button>
+                    <Button Style="{StaticResource NavButton}" Command="{Binding RefreshCommand}" ToolTip="立即同步" Margin="0,4,0,0">
+                        <StackPanel Orientation="Horizontal">
+                            <ui:SymbolIcon x:Name="SyncIcon" Symbol="ArrowSync24" FontSize="16" Foreground="{DynamicResource TextFillColorSecondaryBrush}" />
+                            <TextBlock x:Name="StatusText" Text="{Binding Status}" Margin="12,0,0,0" FontSize="12" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextFillColorSecondaryBrush}" TextTrimming="CharacterEllipsis" MaxWidth="160" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <ListBox x:Name="Nav" ItemsSource="{Binding Pages}" SelectedItem="{Binding Selected}" ItemContainerStyle="{StaticResource NavItem}"
+                         Background="Transparent" BorderThickness="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                    <ListBox.Template>
+                        <ControlTemplate TargetType="ListBox">
+                            <ItemsPresenter />
+                        </ControlTemplate>
+                    </ListBox.Template>
+                    <ListBox.ItemTemplate>
+                        <DataTemplate DataType="{x:Type vm:PageViewModel}">
+                            <Grid>
+                                <StackPanel Orientation="Horizontal">
+                                    <ui:SymbolIcon Symbol="{Binding Icon}" FontSize="18" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                    <TextBlock Text="{Binding Title}" Margin="12,0,0,0" FontSize="14" VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                                </StackPanel>
+                                <Border HorizontalAlignment="Right" Background="{DynamicResource BrandBrush}" CornerRadius="9" MinWidth="20" Padding="6,1"
+                                        Visibility="{Binding HasBadge, Converter={StaticResource BoolToVis}}">
+                                    <TextBlock Text="{Binding Badge}" FontSize="11" Foreground="White" HorizontalAlignment="Center" />
+                                </Border>
+                            </Grid>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+            </DockPanel>
+
+            <!-- 内容 -->
+            <Border Grid.Column="1" CornerRadius="8,0,0,0" Background="{DynamicResource LayerFillColorDefaultBrush}"
+                    BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}" BorderThickness="1,1,0,0">
+                <ContentControl Content="{Binding Selected}" Focusable="False" />
+            </Border>
+
+            <!-- 轻提示 -->
+            <Border x:Name="ToastHost" Grid.Column="1" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,28"
+                    Background="{DynamicResource SolidBackgroundFillColorTertiaryBrush}" BorderBrush="{DynamicResource CardStrokeColorDefaultBrush}"
+                    BorderThickness="1" CornerRadius="8" Padding="16,10" Visibility="Collapsed" IsHitTestVisible="False">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.18" />
+                </Border.Effect>
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="CheckmarkCircle20" Foreground="{DynamicResource SuccessBrush}" Margin="0,0,8,0" />
+                    <TextBlock x:Name="ToastText" FontSize="13" Foreground="{DynamicResource TextFillColorPrimaryBrush}" VerticalAlignment="Center" />
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <ui:TitleBar Grid.Row="0" Title="" Height="36" />
+    </Grid>
+</ui:FluentWindow>

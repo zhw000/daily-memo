@@ -1,0 +1,69 @@
+name: iOS
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "ios/**"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 选择 Xcode
+        run: |
+          ls -d /Applications/Xcode*.app
+          XCODE=$(ls -d /Applications/Xcode_*.app | grep -vi beta | sort -V | tail -1)
+          echo "使用 $XCODE"
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+
+      - name: 安装 XcodeGen
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: "1"
+          HOMEBREW_NO_INSTALL_CLEANUP: "1"
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 项目
+        working-directory: ios
+        run: xcodegen generate
+
+      - name: 单元测试 + 界面截图
+        working-directory: ios
+        run: bash ci/test-and-screenshot.sh
+
+      - name: 编译未签名 IPA
+        working-directory: ios
+        run: bash ci/build-ipa.sh
+
+      - name: 上传 IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: DailyMemo-unsigned-ipa
+          path: ios/build/DailyMemo-unsigned.ipa
+          if-no-files-found: error
+
+      - name: 上传截图
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: screenshots
+          path: ios/build/screenshots
+          if-no-files-found: ignore
+
+      - name: 上传日志
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: logs
+          path: ios/build/logs
+          if-no-files-found: ignore

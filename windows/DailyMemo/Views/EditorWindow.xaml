@@ -1,0 +1,124 @@
+<ui:FluentWindow x:Class="DailyMemo.Views.EditorWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
+                 Title="{Binding WindowTitle}" Width="500" SizeToContent="Height" ResizeMode="NoResize"
+                 ExtendsContentIntoTitleBar="True" WindowBackdropType="Mica" WindowCornerPreference="Round"
+                 FontFamily="{StaticResource UiFont}" ShowInTaskbar="True" Icon="pack://application:,,,/Assets/app.ico">
+    <Grid x:Name="Root">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <ui:TitleBar Title="{Binding WindowTitle}" ShowMaximize="False" ShowMinimize="False" Height="36" />
+
+        <StackPanel Grid.Row="1" Margin="24,4,24,22">
+            <!-- 类型 -->
+            <Border HorizontalAlignment="Left" Background="{DynamicResource ControlFillColorDefaultBrush}" CornerRadius="8" Padding="2" Margin="0,0,0,14"
+                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1"
+                    Visibility="{Binding CanChangeKind, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <RadioButton Style="{StaticResource SegmentButton}" Content="待办" GroupName="kind" IsChecked="{Binding IsTask}" />
+                    <RadioButton Style="{StaticResource SegmentButton}" Content="日程" GroupName="kind" IsChecked="{Binding IsEvent}" />
+                </StackPanel>
+            </Border>
+
+            <ui:TextBox x:Name="TitleBox" Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}" FontSize="16" PlaceholderText="要做什么？"
+                        IsEnabled="{Binding IsEditable}" />
+            <Button Style="{StaticResource LinkButton}" Margin="2,6,0,0" HorizontalAlignment="Left" Click="ApplyParsed_Click"
+                    Visibility="{Binding HasParseHint, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Sparkle20" FontSize="13" Foreground="{DynamicResource BrandBrush}" Margin="0,0,4,0" />
+                    <TextBlock Text="{Binding ParseHint}" FontSize="12" />
+                </StackPanel>
+            </Button>
+
+            <!-- 日期 -->
+            <Grid Margin="0,16,0,0" IsEnabled="{Binding IsEditable}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="日期" Style="{StaticResource FieldLabel}" VerticalAlignment="Top" Margin="0,8,0,0" />
+                <StackPanel Grid.Column="1">
+                    <StackPanel Orientation="Horizontal">
+                        <CheckBox Content="设置日期" IsChecked="{Binding HasDate}" Margin="0,0,12,0" VerticalAlignment="Center"
+                                  Visibility="{Binding IsTask, Converter={StaticResource BoolToVis}}" />
+                        <DatePicker SelectedDate="{Binding Date}" Width="180" IsEnabled="{Binding HasDate}" SelectedDateFormat="Long" />
+                    </StackPanel>
+                    <WrapPanel Margin="0,8,0,0">
+                        <Button Style="{StaticResource ChipButton}" Content="今天" Command="{Binding QuickDateCommand}" CommandParameter="today" />
+                        <Button Style="{StaticResource ChipButton}" Content="明天" Command="{Binding QuickDateCommand}" CommandParameter="tomorrow" />
+                        <Button Style="{StaticResource ChipButton}" Content="这周末" Command="{Binding QuickDateCommand}" CommandParameter="weekend" />
+                        <Button Style="{StaticResource ChipButton}" Content="下周一" Command="{Binding QuickDateCommand}" CommandParameter="nextweek" />
+                        <Button Style="{StaticResource ChipButton}" Content="不设日期" Command="{Binding QuickDateCommand}" CommandParameter="none"
+                                Visibility="{Binding IsTask, Converter={StaticResource BoolToVis}}" />
+                    </WrapPanel>
+                </StackPanel>
+            </Grid>
+
+            <!-- 时间 -->
+            <Grid Margin="0,14,0,0" IsEnabled="{Binding IsEditable}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="时间" Style="{StaticResource FieldLabel}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <CheckBox Content="指定时间" IsChecked="{Binding HasTime}" IsEnabled="{Binding HasDate}" Margin="0,0,12,0" VerticalAlignment="Center"
+                              Visibility="{Binding IsTask, Converter={StaticResource BoolToVis}}" />
+                    <CheckBox Content="全天" IsChecked="{Binding AllDay}" Margin="0,0,12,0" VerticalAlignment="Center"
+                              Visibility="{Binding IsEvent, Converter={StaticResource BoolToVis}}" />
+                    <ComboBox IsEditable="True" Text="{Binding StartTime, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding TimeOptions}" Width="104"
+                              Visibility="{Binding ShowTimeFields, Converter={StaticResource BoolToVis}}" />
+                    <TextBlock Text="–" Margin="10,0" VerticalAlignment="Center" Foreground="{DynamicResource TextFillColorSecondaryBrush}"
+                               Visibility="{Binding ShowEndTime, Converter={StaticResource BoolToVis}}" />
+                    <ComboBox IsEditable="True" Text="{Binding EndTime, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding TimeOptions}" Width="104"
+                              Visibility="{Binding ShowEndTime, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+            </Grid>
+
+            <!-- 保存位置 -->
+            <Grid Margin="0,14,0,0" IsEnabled="{Binding IsEditable}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="72" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="保存到" Style="{StaticResource FieldLabel}" />
+                <ComboBox Grid.Column="1" ItemsSource="{Binding Targets}" SelectedItem="{Binding SelectedTarget}" DisplayMemberPath="Name" />
+            </Grid>
+
+            <ui:TextBox Margin="0,14,0,0" Text="{Binding Location, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="地点（可选）"
+                        Visibility="{Binding IsEvent, Converter={StaticResource BoolToVis}}" IsEnabled="{Binding IsEditable}">
+                <ui:TextBox.Icon>
+                    <ui:SymbolIcon Symbol="Location20" />
+                </ui:TextBox.Icon>
+            </ui:TextBox>
+
+            <ui:TextBox Margin="0,14,0,0" Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="备注（可选）"
+                        AcceptsReturn="True" TextWrapping="Wrap" MinHeight="72" MaxHeight="180" VerticalScrollBarVisibility="Auto"
+                        IsEnabled="{Binding IsEditable}" />
+
+            <Border Margin="0,14,0,0" Background="{DynamicResource PillBrush}" CornerRadius="6" Padding="10,7"
+                    Visibility="{Binding HasHint, Converter={StaticResource BoolToVis}}">
+                <StackPanel Orientation="Horizontal">
+                    <ui:SymbolIcon Symbol="Info20" FontSize="14" Foreground="{DynamicResource BrandBrush}" Margin="0,0,6,0" VerticalAlignment="Top" />
+                    <TextBlock Text="{Binding Hint}" FontSize="12" TextWrapping="Wrap" MaxWidth="400" Foreground="{DynamicResource TextFillColorPrimaryBrush}" />
+                </StackPanel>
+            </Border>
+
+            <TextBlock Margin="0,12,0,0" Text="{Binding Error}" Foreground="{DynamicResource OverdueBrush}" FontSize="13" TextWrapping="Wrap"
+                       Visibility="{Binding HasError, Converter={StaticResource BoolToVis}}" />
+
+            <Grid Margin="0,20,0,0">
+                <ui:Button Content="删除" Icon="{ui:SymbolIcon Delete20}" Appearance="Danger" Command="{Binding DeleteCommand}" HorizontalAlignment="Left"
+                           Visibility="{Binding CanDelete, Converter={StaticResource BoolToVis}}" />
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <ui:Button Content="取消" Command="{Binding CancelCommand}" MinWidth="88" Margin="0,0,8,0" IsCancel="True" />
+                    <ui:Button Content="保存" Appearance="Primary" Command="{Binding SaveCommand}" MinWidth="88" IsDefault="True"
+                               Visibility="{Binding IsEditable, Converter={StaticResource BoolToVis}}" />
+                </StackPanel>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</ui:FluentWindow>

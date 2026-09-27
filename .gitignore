@@ -1,0 +1,19 @@
+# Windows / .NET
+**/bin/
+**/obj/
+*.user
+.vs/
+dist/
+
+# iOS（Xcode 项目、Info.plist、entitlements 都由 XcodeGen 生成）
+ios/build/
+ios/*.xcodeproj/
+ios/App/Info.plist
+ios/Widget/Info.plist
+ios/App/*.entitlements
+ios/Widget/*.entitlements
+DerivedData/
+xcuserdata/
+
+.DS_Store
+Thumbs.db
