@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>今日事 · 隐私说明</title>
+<style>
+  :root { --brand: #4c6ef5; --text: #1f2328; --sub: #5b6270; --bg: #f5f6fa; --card: #fff; }
+  @media (prefers-color-scheme: dark) { :root { --text: #eceef2; --sub: #a3a9b5; --bg: #16171b; --card: #22242a; --brand: #7b93ff; } }
+  body { margin: 0; font-family: system-ui, -apple-system, "PingFang SC", "Microsoft YaHei UI", sans-serif; background: var(--bg); color: var(--text); line-height: 1.75; }
+  main { max-width: 720px; margin: 0 auto; padding: 48px 16px 64px; }
+  .card { background: var(--card); border-radius: 16px; padding: 28px 24px; box-shadow: 0 2px 12px rgba(0,0,0,.06); }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  h2 { font-size: 18px; margin: 28px 0 8px; }
+  .tag { color: var(--sub); margin: 0 0 8px; }
+  li { margin: 6px 0; }
+  a { color: var(--brand); }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <h1>今日事 · 隐私说明</h1>
+    <p class="tag">更新日期：2026 年 9 月 28 日</p>
+    <p>今日事是个人自用的每日备忘应用（Windows 和 iPhone）。本说明介绍应用会访问哪些数据，以及这些数据如何处理。</p>
+
+    <h2>应用访问的数据</h2>
+    <ul>
+      <li><strong>Google 日历和 Google Tasks</strong>：在用户通过 Google 授权后，读取、新建、修改和删除用户的日程与待办，用于在应用和小组件中显示，并在电脑与手机之间同步。</li>
+      <li><strong>Google 账号邮箱</strong>：仅用于在设置中显示当前登录的账号。</li>
+      <li><strong>iPhone「日历」和「提醒事项」</strong>（iPhone 版）：在用户允许后读取和修改，用于显示，并按用户的选择与 Google Tasks 同步。</li>
+      <li><strong>iCloud 日历</strong>（Windows 版，可选）：用户填写 Apple ID 和 App 专用密码后读取和新建日程。</li>
+    </ul>
+
+    <h2>数据如何处理</h2>
+    <ul>
+      <li>所有数据只在用户的设备与 Google、Apple 的服务器之间直接传输，不经过任何第三方服务器。</li>
+      <li>开发者不收集、不存储、不出售、不分享任何用户数据，应用不包含任何统计、广告或追踪代码。</li>
+      <li>授权令牌和缓存只保存在用户自己的设备上：Windows 版使用系统 DPAPI 加密保存，iPhone 版保存在应用自身的存储空间中。</li>
+    </ul>
+
+    <h2>Google API 用户数据政策</h2>
+    <p>今日事对从 Google API 获得的信息的使用和转移，遵守 <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>，包括其中的 Limited Use（有限使用）要求。</p>
+
+    <h2>撤销授权和删除数据</h2>
+    <ul>
+      <li>随时可以在 <a href="https://myaccount.google.com/permissions">Google 账号的第三方访问设置</a> 中移除「今日事」的访问权限，或在应用设置中退出登录。</li>
+      <li>删除应用（iPhone）或删除 %APPDATA%\DailyMemo 文件夹（Windows）即可清除本机保存的全部数据；Google、Apple 账号中的日程和待办不受影响。</li>
+    </ul>
+
+    <p><a href="index.html">返回首页</a></p>
+  </div>
+</main>
+</body>
+</html>
